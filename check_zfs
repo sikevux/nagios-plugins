@@ -4,9 +4,10 @@
 # vim:ts=4:sw=4:smartindent:foldmethod=marker
 
 # check_zfs Nagios plugin for monitoring Sun ZFS zpools
-# Copyright (c) 2007 
+# Copyright (c) 2007
 # Written by Nathan Butcher
 # Improved by Roy Sigurd Karlsbakk <roy@karlsbakk.net>
+# Improved further by Patrik Greco <sikevux@sikevux.se>
 
 # Released under the GNU Public License
 #
@@ -40,7 +41,7 @@
 # Version: 0.9.2
 # Date: 24th July 2007
 # This plugin has tested on FreeBSD 7.0-CURRENT and Solaris 10
-# With a bit of fondling, it could be expanded to recognize other OSes in
+# With a bit of fondling, it could be expanded to recogonize other OSes in
 # future (e.g. if FUSE Linux gets off the ground)
 
 # Version: 0.9.3
@@ -62,6 +63,11 @@
 # drives and whatever approrpiate for external chassises.
 # Date: 30.3.2011
 # - Roy Sigurd Karlsbakk <roy@karlsbakk.net>
+
+# Version 0.9.6
+# Date: 27.11.2013
+# Added initial support for ZFS on Linux
+# - Patrik Greco <sikevux@sikevux.se>
 
 # }}}
 # Libs etc {{{
@@ -492,7 +498,16 @@ if ($#ARGV != 1)
 my $pool=$ARGV[0];
 my $verbosity=$ARGV[1];
 
-my $zpoolcmd = '/usr/sbin/zpool';
+my $zpoolcmd;
+
+if ($OS eq "Linux")
+{
+	$zpoolcmd = '/sbin/zpool';
+}
+else
+{
+	$zpoolcmd = '/usr/sbin/zpool';
+}
 
 my $size="";
 my $used="";
