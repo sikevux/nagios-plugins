@@ -69,6 +69,13 @@
 # Added initial support for ZFS on Linux
 # - Patrik Greco <sikevux@sikevux.se>
 
+# Version 0.9.7
+# Date: 21.11.2014
+# Fixed paths for FreeBSD zpool - matches Linux location
+# Fixed formatting for latest zpool list format on FreeBSD 10.1
+# - Sean McFadden github@edgebox.ca
+
+
 # }}}
 # Libs etc {{{
 
@@ -500,7 +507,7 @@ my $verbosity=$ARGV[1];
 
 my $zpoolcmd;
 
-if ($OS eq "Linux")
+if ($OS eq "Linux" or $OS eq "Freebsd")
 {
 	$zpoolcmd = '/sbin/zpool';
 }
@@ -513,11 +520,14 @@ my $size="";
 my $used="";
 my $deduprat="";
 my $avail="";
+my $frag="";
+my $expandsz="";
 my $cap="";
 my $health="";
 my $dmge="";
 
 my $dedup=0;
+my $fbsd101=0;
 
 if ($verbosity < 1 || $verbosity > 3)
 {
@@ -560,11 +570,23 @@ while (<STAT>)
 		$dedup = 1;
 		next;
 	}
+## zpool list on FreeBSD 10.1
+# NAME   SIZE  ALLOC   FREE   FRAG  EXPANDSZ    CAP  DEDUP  HEALTH  ALTROOT
+# tank  8.17T  7.67T   513G    45%         -    93%  1.59x  ONLINE  -
+	elsif (/^NAME\s+SIZE\s+ALLOC\s+FREE\s+FRAG\s+EXPANDSZ\s+CAP\s+DEDUP\s+HEALTH\s+ALTROOT/)
+	{
+		$fbsd101 = 1;
+		next;
+	}
 	if (/^${pool}\s+/)
 	{
 		if ($dedup)
 		{
 			($dummy, $size, $used, $avail, $cap, $deduprat, $health) = split(/\s+/);
+		}
+		elsif ($fbsd101)
+		{
+			($dummy, $size, $used, $avail, $frag, $expandsz, $cap, $deduprat, $health) = split(/\s+/);
 		}
 		else
 		{
