@@ -77,7 +77,7 @@
 
 # Version 0.9.8
 # Date: 15.08.2015
-# Fixed formatted for latest zpool list format on FreeBSD 10.2
+# Fixed formatting for latest zpool list format on FreeBSD 10.2
 # Made the shebang line universal
 # - Sean McFadden github@edgebox.ca
 
