@@ -528,6 +528,7 @@ my $dmge="";
 
 my $dedup=0;
 my $fbsd101=0;
+my $fbsd110=0;
 
 if ($verbosity < 1 || $verbosity > 3)
 {
@@ -578,6 +579,16 @@ while (<STAT>)
 		$fbsd101 = 1;
 		next;
 	}
+
+## zpool list on FreeBSD 11.0
+# NAME    SIZE  ALLOC   FREE  EXPANDSZ   FRAG    CAP  DEDUP  HEALTH  ALTROOT
+# tank   10.8T  6.55T  4.26T         -    29%    60%  1.52x  ONLINE  -
+	elsif (/^NAME\s+SIZE\s+ALLOC\s+FREE\s+EXPANDSZ\s+FRAG\s+CAP\s+DEDUP\s+HEALTH\s+ALTROOT/)
+	{
+		$fbsd110 = 1;
+		next;
+	}
+
 	if (/^${pool}\s+/)
 	{
 		if ($dedup)
@@ -587,6 +598,10 @@ while (<STAT>)
 		elsif ($fbsd101)
 		{
 			($dummy, $size, $used, $avail, $frag, $expandsz, $cap, $deduprat, $health) = split(/\s+/);
+		}
+		elsif ($fbsd110)
+		{
+			($dummy, $size, $used, $avail, $expandsz, $frag, $cap, $deduprat, $health) = split(/\s+/);
 		}
 		else
 		{
