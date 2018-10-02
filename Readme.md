@@ -1,5 +1,5 @@
 # Check ZFS for FreeBSD
-This tool checks if your zpool are healty.
+This tool checks if your zpools are healty.
 
 Just execute:
 ```
