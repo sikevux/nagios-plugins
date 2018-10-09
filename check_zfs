@@ -81,6 +81,11 @@
 # Made the shebang line universal
 # - Sean McFadden github@edgebox.ca
 
+# Version 0.9.9
+# Date: 2.10.2018
+# Fixed formatting for latest zpool list format on FreeBSD 11.2
+# - Matthias Fechner <matthias@fechner.net>
+
 
 # }}}
 # Libs etc {{{
@@ -528,6 +533,7 @@ my $deduprat="";
 my $avail="";
 my $frag="";
 my $expandsz="";
+my $ckpoint="";
 my $cap="";
 my $health="";
 my $dmge="";
@@ -536,6 +542,7 @@ my $dedup=0;
 my $fbsd101=0;
 my $fbsd102=0;
 my $fbsd110=0;
+my $fbsd112=0;
 
 if ($verbosity < 1 || $verbosity > 3)
 {
@@ -602,6 +609,14 @@ while (<STAT>)
 		$fbsd110 = 1;
 		next;
 	}
+## zpool list on FreeBSD 11.2
+# NAME       SIZE  ALLOC   FREE  CKPOINT  EXPANDSZ   FRAG    CAP  DEDUP  HEALTH  ALTROOT
+# zroot     1.81T  1.08T   746G        -         -    60%    59%  1.00x  ONLINE  -
+	elsif (/^NAME\s+SIZE\s+ALLOC\s+FREE\s+CKPOINT\s+EXPANDSZ\s+FRAG\s+CAP\s+DEDUP\s+HEALTH\s+ALTROOT/)
+	{
+		$fbsd112 = 1;
+		next;
+	}
 
 	if (/^${pool}\s+/)
 	{
@@ -620,6 +635,10 @@ while (<STAT>)
 		elsif ($fbsd110)
 		{
 			($dummy, $size, $used, $avail, $expandsz, $frag, $cap, $deduprat, $health) = split(/\s+/);
+		}
+		elsif ($fbsd112)
+		{
+			($dummy, $size, $used, $avail, $ckpoint, $expandsz, $frag, $cap, $deduprat, $health) = split(/\s+/);
 		}
 		else
 		{
